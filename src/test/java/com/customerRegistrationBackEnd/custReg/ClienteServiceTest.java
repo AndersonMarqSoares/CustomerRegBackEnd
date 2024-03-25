@@ -1,12 +1,14 @@
 package com.customerRegistrationBackEnd.custReg;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.customerRegistrationBackEnd.entities.ClienteEntity;
@@ -25,25 +27,73 @@ public class ClienteServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+
     /**
-     *      Teste de cadastro de Cliente.
+     *  Teste para validar o listar Clientes
+     */
+    @Test
+    public void testListarClientes() {
+        List<ClienteEntity> clientes = new ArrayList<>();
+        clientes.add(new ClienteEntity(1L, "Cliente 1", "Endereço 1", "Bairro 1"));
+        clientes.add(new ClienteEntity(2L, "Cliente 2", "Endereço 2", "Bairro 2"));
+
+        Mockito.when(clienteRepository.findAll()).thenReturn(clientes);
+
+        List<ClienteEntity> listaClientes = clienteService.listarClientes();
+        Assertions.assertEquals(2, listaClientes.size());
+    }
+
+    /**
+     *  Teste para validar o buscar cliente por Id
+     */
+    @Test
+    public void testBuscarClientePorId() {
+        ClienteEntity cliente = new ClienteEntity(1L, "Cliente 1", "Endereço 1", "Bairro 1");
+
+        Mockito.when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+
+        ClienteEntity clienteEncontrado = clienteService.buscarClientePorId(1L);
+        Assertions.assertNotNull(clienteEncontrado);
+        Assertions.assertEquals("Cliente 1", clienteEncontrado.getNome());
+    }
+
+    /**
+     *  Teste para validar o cadastrar Cliente
      */
     @Test
     public void testCadastrarCliente() {
+        ClienteEntity cliente = new ClienteEntity(1L, "Novo Cliente", "Novo Endereço", "Novo Bairro");
 
-        ClienteEntity clienteEntity = new ClienteEntity();
-        clienteEntity.setId(1L);
-        clienteEntity.setNome("Teste");
-        clienteEntity.setEndereco("Endereco");
-        clienteEntity.setBairro("Bairro");
+        Mockito.when(clienteRepository.save(Mockito.any(ClienteEntity.class))).thenReturn(cliente);
 
-        when(clienteRepository.save(any(ClienteEntity.class))).thenReturn(clienteEntity);
+        ClienteEntity clienteCadastrado = clienteService.cadastrarCliente(cliente);
+        Assertions.assertNotNull(clienteCadastrado);
+        Assertions.assertEquals("Novo Cliente", clienteCadastrado.getNome());
+    }
 
-        ClienteEntity result = clienteService.cadastrarCliente(clienteEntity);
+    /**
+     *  Teste para validar o atualizar Cliente
+     */
+    @Test
+    public void testAtualizarCliente() {
+        ClienteEntity cliente = new ClienteEntity(1L, "Cliente 1", "Endereço 1", "Bairro 1");
 
-        assertNotNull(result);
-        assertEquals("Teste", result.getNome());
-        assertEquals("Endereco", result.getEndereco());
-        assertEquals("Bairro", result.getBairro());
+        Mockito.when(clienteRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(clienteRepository.save(Mockito.any(ClienteEntity.class))).thenReturn(cliente);
+
+        ClienteEntity clienteAtualizado = clienteService.atualizarCliente(1L, cliente);
+        Assertions.assertNotNull(clienteAtualizado);
+        Assertions.assertEquals("Cliente 1", clienteAtualizado.getNome());
+    }
+
+    /**
+     * Teste para validar o deletar Cliente
+     */
+    @Test
+    public void testDeletarCliente() {
+        Mockito.when(clienteRepository.existsById(1L)).thenReturn(true);
+
+        boolean deletado = clienteService.deletarCliente(1L);
+        Assertions.assertTrue(deletado);
     }
 }

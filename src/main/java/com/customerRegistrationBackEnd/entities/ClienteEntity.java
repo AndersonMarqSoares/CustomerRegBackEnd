@@ -40,7 +40,8 @@ public class ClienteEntity {
      * @param endereco
      * @param bairro
      */
-    public ClienteEntity(String nome, String endereco, String bairro) {
+    public ClienteEntity(Long id,String nome, String endereco, String bairro) {
+        this.id = id;
         this.nome = nome;
         this.endereco = endereco;
         this.bairro = bairro;
